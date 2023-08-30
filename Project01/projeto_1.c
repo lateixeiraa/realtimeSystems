@@ -21,11 +21,10 @@ void *producer(void *arg) {
     int producer_id = *(int *)arg;
 
     while (1) {
-       // sleep(1);
 
         Item item;
-        int maxId = 9;
-        item.id = rand() % (maxId + 1);      // Simula a produção de um item
+        
+        item.id = rand();      // Simula a produção de um item
 
         sem_wait(&empty);       // Espera por um espaço vazio no buffer
         sem_wait(&mutex);       // Entra na seção crítica
@@ -61,7 +60,7 @@ void *consumer(void *arg) {
 }
 
 int main() {
-    srand(time(NULL));          // Inicializa o gerador de números aleatórios
+    srand(time(NULL));         // Inicializa o gerador de números aleatórios
 
     sem_init(&empty, 0, BUFFER_SIZE); // Inicializa semáforo de espaços vazios
     sem_init(&full, 0, 0);      // Inicializa semáforo de itens no buffer
