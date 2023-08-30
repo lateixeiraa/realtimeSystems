@@ -1,3 +1,11 @@
+/**
+ * Sistema de manufatura baseado no problema do produtor cnsumidor
+ * Desenvolvedores: 
+ * Larissa Teixeira da Silva - 119111077
+ * Marcus Vinicius Costa Pereira - 119111203
+ * 
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -16,23 +24,30 @@ typedef struct {
 sem_t empty, full, mutex;       // Semáforos para controle
 Item buffer[BUFFER_SIZE];       // Buffer para os itens
 int in = 0, out = 0;            // Índices para inserção e retirada
+int cont = 0;
 
+/**
+ * Função que representa as máquinas produtoras do sistema
+*/
 void *producer(void *arg) {
-    int producer_id = *(int *)arg;
+    int producer_id = *(int *)arg; //Inicialização do produtor (0, 1 ou 2)
 
     while (1) {
 
-        Item item;
-        
-        item.id = rand();      // Simula a produção de um item
+        Item item;             // Inicializa a criação dos itens
+        item.id = rand();      // Simula a produção de um item de fora aleatória
 
         sem_wait(&empty);       // Espera por um espaço vazio no buffer
         sem_wait(&mutex);       // Entra na seção crítica
 
         buffer[in] = item;      // Insere o item no buffer
         in = (in + 1) % BUFFER_SIZE; // Atualiza o índice de inserção
-
+        
+        cont ++; //Contador utilizado para verificação do preenchimento do buffer
+                 //Nesse caso ele incrementa sempre que produz um item
+                
         printf("Producer %d: Item %d produced\n", producer_id, item.id);
+        printf("\nBuffer: %d\n", cont); 
 
         sem_post(&mutex);       // Sai da seção crítica
         sem_post(&full);        // Sinaliza que um novo item está no buffer
@@ -41,6 +56,10 @@ void *producer(void *arg) {
     }
 }
 
+/**
+ * Função que representa as máquinas consumidoras do sistema
+ * 
+*/
 void *consumer(void *arg) {
     int consumer_id = *(int *)arg;
     while (1) {
@@ -48,14 +67,20 @@ void *consumer(void *arg) {
         sem_wait(&mutex);       // Entra na seção crítica
 
         Item item = buffer[out]; // Remove um item do buffer
+        
         out = (out + 1) % BUFFER_SIZE; // Atualiza o índice de retirada
 
+        cont --; //Contador utilizado para verificação do preenchimento do buffer
+                 //Nesse caso ele decrementa sempre que consome um item
+                
         printf("Consumer %d: Item %d consumed\n", consumer_id, item.id);
+        printf("\nBuffer: %d\n", cont);
 
         sem_post(&mutex);       // Sai da seção crítica
         sem_post(&empty);       // Sinaliza que há um espaço vazio no buffer
 
         sleep(2);               // Tempo de processamento
+        
     }
 }
 
@@ -93,7 +118,7 @@ int main() {
     for (int i = 0; i < NUM_CONSUMERS; i++) {
         pthread_join(consumers[i], NULL);
     }
-
+    
     // Libera os semáforos
     sem_destroy(&empty);
     sem_destroy(&full);
