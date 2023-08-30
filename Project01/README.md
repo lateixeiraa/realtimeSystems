@@ -35,5 +35,5 @@ Use the standard Linux system installation:
 
 ## Team
 
-| [<img src="https://avatars.githubusercontent.com/u/50165797?v=4" width=115><br><sub>Larissa Teixeira</sub>](https://github.com/lateixeiraa) |  [<img src="https://avatars.githubusercontent.com/u/80260754?v=4" width=115><br><sub>Marcus Vinicius</sub>](https://github.com/mvinicius) |  
+| [Larissa Teixeira</sub>](https://github.com/lateixeiraa) |  [Marcus Vinicius</sub>](https://github.com/mvinicius) |  
 | :---: | :---: |
