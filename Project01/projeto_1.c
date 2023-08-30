@@ -47,7 +47,7 @@ void *producer(void *arg) {
                  //Nesse caso ele incrementa sempre que produz um item
                 
         printf("Producer %d: Item %d produced\n", producer_id, item.id);
-        printf("\nBuffer: %d\n", cont); 
+        printf("Buffer: %d\n\n", cont); 
 
         sem_post(&mutex);       // Sai da seção crítica
         sem_post(&full);        // Sinaliza que um novo item está no buffer
@@ -74,7 +74,7 @@ void *consumer(void *arg) {
                  //Nesse caso ele decrementa sempre que consome um item
                 
         printf("Consumer %d: Item %d consumed\n", consumer_id, item.id);
-        printf("\nBuffer: %d\n", cont);
+        printf("\nBuffer: %d\n\n", cont);
 
         sem_post(&mutex);       // Sai da seção crítica
         sem_post(&empty);       // Sinaliza que há um espaço vazio no buffer
