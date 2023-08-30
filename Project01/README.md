@@ -42,7 +42,9 @@ gcc -o projeto_1 projeto_1.c -lpthread
    
 5. Run the compiled program:
    
-``` ./projeto_1```
+``` 
+./projeto_1
+```
 
 ### Example of Expected Output
 
