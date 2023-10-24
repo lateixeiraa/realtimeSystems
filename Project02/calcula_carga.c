@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <limits.h>
 
 // Definição da struct tarefa
 typedef struct {
@@ -25,53 +24,19 @@ int mmc(int a, int b) {
     return resultado;
 }
 
-// Função que calcula o MDC
-int mdc(int a, int b) {
-    int maior, menor, resto;
-    maior = (a > b) ? a : b;
-    menor = (a < b) ? a : b;
-    while (menor != 0) {
-        resto = maior % menor;
-        maior = menor;
-        menor = resto;
-    }
-    return maior;
-}
-
 // Operações realizadas com as cargas
 void processar_carga(Tarefa tarefas[], int n_tarefas, int carga) {
     int i;
     
     //Verifica escalonabilidade pelo Executivo cíclico
     // Calcula o ciclo menor e maior
-    // Calcula o ciclo menor
-     // Calcula o ciclo maior
+    int ciclo_menor = tarefas[0].periodo;
     int ciclo_maior = tarefas[0].periodo;
     for (i = 1; i < n_tarefas; i++) {
+        ciclo_menor = (ciclo_menor < tarefas[i].periodo) ? ciclo_menor : tarefas[i].periodo;
         ciclo_maior = mmc(ciclo_maior, tarefas[i].periodo);
     }
 
-    // Inicializa o ciclo_menor com um valor grande
-    int ciclo_menor = INT_MAX;
-
-    // Etapa 1: Obtém os divisores do ciclo_maior
-    for (int divisor = 1; divisor <= ciclo_maior; divisor++) {
-        // Etapa 2: Verifica se o divisor é maior que o maior tempo de execução
-        // e menor que o menor período
-        if (divisor > ciclo_menor || divisor < tarefas[0].tempo_execucao) {
-            continue; // Ignora divisores que não atendem aos critérios
-        }
-
-        // Etapa 3: Verifica a expressão
-        int gcd = mdc(divisor, tarefas[0].deadline);
-        if (2 * tarefas[0].tempo_execucao - gcd < tarefas[0].deadline) {
-            // Etapa 4: Atualiza o ciclo_menor com o menor divisor encontrado
-            ciclo_menor = (divisor < ciclo_menor) ? divisor : ciclo_menor;
-        }
-    }
-
-
- 
     // Verifica escalonabilidade com o teste de utilização 
     double utilizacao = 0; // Inicializa a variável utilizacao que armazenará a soma das utilizações das tarefas.
     for (i = 0; i < n_tarefas; i++) {
