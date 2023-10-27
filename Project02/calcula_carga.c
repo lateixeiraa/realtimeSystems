@@ -28,7 +28,7 @@ int mmc(int a, int b) {
     return (a * b) / mdc(a, b);
 }
 
-// Função auxiliar para ordenar as tarefas por período
+// Função de comparação para qsort, usada para ordenar tarefas por período.
 int comparar_tarefas(const void *a, const void *b) {
     Tarefa *tarefaA = (Tarefa *)a;
     Tarefa *tarefaB = (Tarefa *)b;
