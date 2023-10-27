@@ -62,7 +62,6 @@ int ciclo_menor = tarefas[0].periodo;
     }
 
     // Exibe os resultados
-    //printf("Carga %d\n", carga);
     printf("Executivo: %s\n", resultado);
     printf("Ciclo maior: %d\n", ciclo_maior);
     printf("Ciclo menor: %d\n", ciclo_menor);
@@ -131,9 +130,6 @@ float utilizacao = 0;  // Nome da variável alterado de load para utilizacao
     // Agora, você pode imprimir ou usar o resultado_edf conforme necessário
     printf("EDF: %s\n", resultado_edf);
 }
-
-
-
 int main() {
 
     // Leitura das cargas presentes no arquivo .txt
