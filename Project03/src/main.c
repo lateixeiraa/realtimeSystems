@@ -53,14 +53,18 @@ TickType_t gerarTempoAleatorioEmTicks() {
 }
 
 void ProcessoAtaqueTask(void *pvParameters) {
+    // Inicializa o gerador de números aleatórios
     srand(time(NULL));
 
     while (1) {
+        // Gera um número aleatório de mísseis para o ataque
         int numeroDeMisseis = gerarNumeroAleatorioDeMisseis();
         printf("Lancando ataque com %d misseis.\n", numeroDeMisseis);
         
         for (int i = 0; i < numeroDeMisseis; i++) {
+            // Aloca memória para um novo míssil
             Missil *missil = malloc(sizeof(Missil)); // Aloca memória para o míssil
+            // Define as propriedades do míssil (ID, trajetória, tempo de impacto)
             missil->id = i;
             missil->trajetoria = gerarTrajetoriaAleatoria();
             missil->tempoImpacto = gerarTempoImpactoAleatorio();
@@ -71,6 +75,7 @@ void ProcessoAtaqueTask(void *pvParameters) {
                     misseisAtivos.misseis[misseisAtivos.count] = *missil;
                     misseisAtivos.count++;
                 }
+                // Libera o semáforo após adicionar o míssil à lista
                 xSemaphoreGive(misseisAtivos.semaforoMisseis);
             }
             printf("Missil ID: %d lancado. Trajetoria: %d, Tempo de Impacto: %d segundos.\n", missil->id, missil->trajetoria, missil->tempoImpacto);
@@ -81,9 +86,14 @@ void ProcessoAtaqueTask(void *pvParameters) {
 }
 
 void ordenarMisseisPorTempoETrajetoria() {
+    // n recebe o número total de mísseis ativos
     int n = misseisAtivos.count;
+
+    // Loop externo que percorre todos os mísseis, exceto o último
     for (int i = 0; i < n-1; i++) {     
         for (int j = 0; j < n-i-1; j++) {
+            // Condição para troca: se o tempo de impacto do míssil atual (j) é maior que o do próximo (j+1)
+            // Ou se os tempos de impacto são iguais, mas a trajetória do atual é maior que a do próximo
             if (misseisAtivos.misseis[j].tempoImpacto > misseisAtivos.misseis[j+1].tempoImpacto ||
                (misseisAtivos.misseis[j].tempoImpacto == misseisAtivos.misseis[j+1].tempoImpacto && 
                 misseisAtivos.misseis[j].trajetoria > misseisAtivos.misseis[j+1].trajetoria)) {
@@ -99,17 +109,21 @@ void ordenarMisseisPorTempoETrajetoria() {
 void ProcessoDefesaTask(void *pvParameters) {
     while (1) {
         if (xSemaphoreTake(misseisAtivos.semaforoMisseis, portMAX_DELAY)) {
-            // Ordenar os misseis por tempo de impacto e trajetoria
+            // Ordena os mísseis por tempo de impacto e trajetória
+            // Mísseis com menor tempo de impacto e trajetória serão priorizados
             ordenarMisseisPorTempoETrajetoria();
 
-            // Processar cada missil
+            // Processa cada míssil na lista de mísseis ativos
             for (int i = 0; i < misseisAtivos.count; i++) {
+                // Verifica se o míssil atual está direcionado para uma área habitada
                 if (misseisAtivos.misseis[i].trajetoria > 50) {
+                    // Míssil é considerado uma ameaça e é interceptado
                     printf("Missil ID: %d com trajetoria %d foi interceptado. Tempo de Impacto: %d segundos.\n", 
                            misseisAtivos.misseis[i].id, 
                            misseisAtivos.misseis[i].trajetoria,
                            misseisAtivos.misseis[i].tempoImpacto);
                 } else {
+                    // Se o míssil não representa ameaça, imprime uma mensagem correspondente
                     printf("Missil ID: %d com trajetoria %d nao e uma ameaca a area habitada. Tempo de Impacto: %d segundos.\n", 
                            misseisAtivos.misseis[i].id, 
                            misseisAtivos.misseis[i].trajetoria,
@@ -117,9 +131,10 @@ void ProcessoDefesaTask(void *pvParameters) {
                 }
             }
 
-            // Resetar a contagem após processar todos os misseis
+            // Após processar todos os mísseis, reseta a contagem para evitar reprocessamento
             misseisAtivos.count = 0;
-
+           
+            // Libera o semáforo após a operação para permitir que outras tasks acessem a lista
             xSemaphoreGive(misseisAtivos.semaforoMisseis);
         }
         vTaskDelay(gerarTempoAleatorioEmTicks());
