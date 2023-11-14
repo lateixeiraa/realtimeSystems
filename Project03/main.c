@@ -80,27 +80,46 @@ void ProcessoAtaqueTask(void *pvParameters) {
     }
 }
 
+void ordenarMisseisPorTempoETrajetoria() {
+    int n = misseisAtivos.count;
+    for (int i = 0; i < n-1; i++) {     
+        for (int j = 0; j < n-i-1; j++) {
+            if (misseisAtivos.misseis[j].tempoImpacto > misseisAtivos.misseis[j+1].tempoImpacto ||
+               (misseisAtivos.misseis[j].tempoImpacto == misseisAtivos.misseis[j+1].tempoImpacto && 
+                misseisAtivos.misseis[j].trajetoria > misseisAtivos.misseis[j+1].trajetoria)) {
+                // Trocar misseis[j] e misseis[j+1]
+                Missil temp = misseisAtivos.misseis[j];
+                misseisAtivos.misseis[j] = misseisAtivos.misseis[j+1];
+                misseisAtivos.misseis[j+1] = temp;
+            }
+        }
+    }
+}
+
 void ProcessoDefesaTask(void *pvParameters) {
-    
     while (1) {
         if (xSemaphoreTake(misseisAtivos.semaforoMisseis, portMAX_DELAY)) {
-            for (int i = 0; i < misseisAtivos.count; i++) {                
-                if (misseisAtivos.misseis[i].trajetoria > 50){
-                    printf("Missil ID: %d foi interceptado e neutralizado.\n", misseisAtivos.misseis[i].id);
+            // Ordenar os misseis por tempo de impacto e trajetoria
+            ordenarMisseisPorTempoETrajetoria();
 
+            // Processar cada missil
+            for (int i = 0; i < misseisAtivos.count; i++) {
+                if (misseisAtivos.misseis[i].trajetoria > 50) {
+                    printf("Missil ID: %d com trajetoria %d foi interceptado. Tempo de Impacto: %d segundos.\n", 
+                           misseisAtivos.misseis[i].id, 
+                           misseisAtivos.misseis[i].trajetoria,
+                           misseisAtivos.misseis[i].tempoImpacto);
                 } else {
-                    printf("Missil ID: %d com trajetoria %d nao e uma ameaca a area habitada.\n", misseisAtivos.misseis[i].id, misseisAtivos.misseis[i].trajetoria);
+                    printf("Missil ID: %d com trajetoria %d nao e uma ameaca a area habitada. Tempo de Impacto: %d segundos.\n", 
+                           misseisAtivos.misseis[i].id, 
+                           misseisAtivos.misseis[i].trajetoria,
+                           misseisAtivos.misseis[i].tempoImpacto);
                 }
-                
-                // Removendo o míssil da lista
-                for (int j = i; j < misseisAtivos.count - 1; j++) {
-                    misseisAtivos.misseis[j] = misseisAtivos.misseis[j + 1];
-                }
-                misseisAtivos.count--; // Atualizar a contagem
-
-                // Se um míssil foi removido, ajuste o índice para não pular o próximo míssil
-                i--;    
             }
+
+            // Resetar a contagem após processar todos os misseis
+            misseisAtivos.count = 0;
+
             xSemaphoreGive(misseisAtivos.semaforoMisseis);
         }
         vTaskDelay(gerarTempoAleatorioEmTicks());
@@ -131,6 +150,7 @@ int main(void) {
     for (;;) {}
     return 0;
 }
+
 
 /*#include <FreeRTOS.h>
 #include <task.h>
